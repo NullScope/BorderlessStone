@@ -1,13 +1,28 @@
 from win32api import GetSystemMetrics
+from win32com.client import GetObject
 import win32gui
 import win32con
+import win32process
 import sys
 import getopt
 
 width = None
 height = None
+hPID = None
 sWidth = GetSystemMetrics(0)
 sHeight = GetSystemMetrics(1)
+
+
+WMI = GetObject('winmgmts:')
+processes = WMI.InstancesOf('Win32_Process')
+process_list = [(p.Properties_("ProcessID").Value, p.Properties_("Name").Value)
+                for p in processes]
+for p in process_list:
+    if(p[1] == "Hearthstone.exe"):
+        hPID = p[0]
+if(hPID is None):
+    print "Please run Hearthstone first"
+    sys.exit(2)
 
 
 def main(argv):
@@ -17,7 +32,7 @@ def main(argv):
         opts, args = getopt.getopt(argv, "w:h:", ["width=", "height="])
     except getopt.GetoptError:
         print 'BorderlessStone.py -w <width> -h <height>'
-        sys.exit(2)
+        sys.exit(1)
     for opt, arg in opts:
         if opt in ("-w", "--width"):
             width = int(arg)
@@ -29,10 +44,11 @@ if __name__ == "__main__":
 
 
 def enumHandler(hwnd, lParam):
-
-    if 'Hearthstone' in win32gui.GetWindowText(hwnd):
+    print win32process.GetWindowThreadProcessId(hwnd)[1], hPID
+    if (win32process.GetWindowThreadProcessId(hwnd)[1] == hPID):
         global width
         global height
+        bResChanged = False
         winWidth = win32gui.GetWindowRect(hwnd)[2]
         winHeight = win32gui.GetWindowRect(hwnd)[3]
 
