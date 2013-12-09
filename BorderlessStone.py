@@ -16,7 +16,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv, "w:h:", ["width=", "height="])
     except getopt.GetoptError:
-        print 'test.py -w <width> -h <height>'
+        print 'BorderlessStone.py -w <width> -h <height>'
         sys.exit(2)
     for opt, arg in opts:
         if opt in ("-w", "--width"):
@@ -35,7 +35,6 @@ def enumHandler(hwnd, lParam):
         global height
         winWidth = win32gui.GetWindowRect(hwnd)[2]
         winHeight = win32gui.GetWindowRect(hwnd)[3]
-        bResChanged = False
 
         if(width != winWidth or
            height != winHeight):
@@ -60,6 +59,10 @@ def enumHandler(hwnd, lParam):
             if(height+2 == sHeight):
                 height = sHeight
 
+        # Center the window
+        centerWidth = sWidth/2-width/2
+        centerHeight = sHeight/2-height/2
+
         lStyle = win32gui.GetWindowLong(hwnd, win32con.GWL_STYLE)
         lStyle &= ~(win32con.WS_CAPTION | win32con.WS_THICKFRAME |
                     win32con.WS_MINIMIZE | win32con.WS_MAXIMIZE |
@@ -70,13 +73,17 @@ def enumHandler(hwnd, lParam):
 
         if(bResChanged is False):
             win32gui.SetWindowLong(hwnd, win32con.GWL_STYLE, lStyle)
-            win32gui.MoveWindow(hwnd, 0, 0, width, height, 1)
+            win32gui.MoveWindow(hwnd, centerWidth, centerHeight,
+                                width, height, 1)
         else:
             win32gui.SetWindowLong(hwnd, win32con.GWL_STYLE, lStyle)
-            win32gui.MoveWindow(hwnd, 0, 0, width, height, 1)
+            win32gui.MoveWindow(hwnd, centerWidth, centerHeight,
+                                width, height, 1)
             win32gui.SetWindowLong(hwnd, win32con.GWL_STYLE, lStyle)
-            win32gui.MoveWindow(hwnd, 0, 0, width, height, 1)
+            win32gui.MoveWindow(hwnd, centerWidth, centerHeight,
+                                width, height, 1)
             win32gui.SetWindowLong(hwnd, win32con.GWL_STYLE, lStyle)
-            win32gui.MoveWindow(hwnd, 0, 0, width, height, 1)
+            win32gui.MoveWindow(hwnd, centerWidth, centerHeight,
+                                width, height, 1)
 
 win32gui.EnumWindows(enumHandler, None)
