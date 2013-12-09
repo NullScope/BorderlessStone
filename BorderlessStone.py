@@ -9,6 +9,15 @@ import getopt
 width = None
 height = None
 hPID = None
+
+winWidth = None
+winHeight = None
+cWidth = None
+cHeight = None
+
+bFound = False
+bBorderless = False
+
 sWidth = GetSystemMetrics(0)
 sHeight = GetSystemMetrics(1)
 
@@ -44,17 +53,39 @@ if __name__ == "__main__":
 
 
 def enumHandler(hwnd, lParam):
-    if (win32process.GetWindowThreadProcessId(hwnd)[1] == hPID):
-        global width
-        global height
+    global bFound
+    global width
+    global height
+    global bBorderless
+    global winWidth
+    global winHeight
+    global cWidth
+    global cHeight
+
+    if (win32process.GetWindowThreadProcessId(hwnd)[1] == hPID and
+            bFound is False):
+
+        bFound = True
         bResChanged = False
+
         winWidth = win32gui.GetWindowRect(hwnd)[2]
         winHeight = win32gui.GetWindowRect(hwnd)[3]
+        cWidth = win32gui.GetClientRect(hwnd)[2]
+        cHeight = win32gui.GetClientRect(hwnd)[3]
+        print win32gui.GetWindowRect(hwnd), win32gui.GetClientRect(hwnd)
 
         if(width != winWidth or
            height != winHeight):
 
             bResChanged = True
+
+        lStyle = win32gui.GetWindowLong(hwnd, win32con.GWL_STYLE)
+
+        lStyle &= ~(win32con.WS_CAPTION | win32con.WS_THICKFRAME |
+                    win32con.WS_MINIMIZE | win32con.WS_MAXIMIZE |
+                    win32con.WS_SYSMENU)
+        if(not lStyle != win32gui.GetWindowLong(hwnd, win32con.GWL_STYLE)):
+            bBorderless = True
 
         # If the user has windowed mode in full resolution, this script
         # will fail to make a borderless window due to the game making
@@ -64,13 +95,17 @@ def enumHandler(hwnd, lParam):
         # this is why these 2 if's are here
 
         if width is None:
-            width = win32gui.GetWindowRect(hwnd)[2]
+            width = cWidth
 
             if(width > sWidth):
                 width = sWidth
 
         if height is None:
-            height = win32gui.GetWindowRect(hwnd)[3]
+            if(bBorderless):
+                height = cHeight
+            else:
+                height = cHeight + (winHeight - cHeight)
+
             if(height+2 == sHeight):
                 height = sHeight
 
@@ -78,10 +113,7 @@ def enumHandler(hwnd, lParam):
         centerWidth = sWidth/2-width/2
         centerHeight = sHeight/2-height/2
 
-        lStyle = win32gui.GetWindowLong(hwnd, win32con.GWL_STYLE)
-        lStyle &= ~(win32con.WS_CAPTION | win32con.WS_THICKFRAME |
-                    win32con.WS_MINIMIZE | win32con.WS_MAXIMIZE |
-                    win32con.WS_SYSMENU)
+        print width, height, bBorderless
 
         # For some reason, if the resolution is changed from the current one
         #It adds the borders back and takes 3 times to make it borderless again
