@@ -44,7 +44,6 @@ if __name__ == "__main__":
 
 
 def enumHandler(hwnd, lParam):
-    print win32process.GetWindowThreadProcessId(hwnd)[1], hPID
     if (win32process.GetWindowThreadProcessId(hwnd)[1] == hPID):
         global width
         global height
