@@ -35,7 +35,7 @@ If using the binaries, instead have a batch file with the following:
 start BorderlessStone.exe -w <YOUR SCREEN WIDTH> -h <YOUR SCREEN HEIGHT>
 ```
 
-The default behaviour of the script (without any command line) will remove the borders and use the game's current resolution
+The default behaviour of the script (without any command line) will remove the borders and use the game's current resolution (**NOT** recommended as it's still somewhat buggy)
 
 ##### Do not use a higher resolution than your monitor is capable of, this will prevent the script from removing the borders
 
